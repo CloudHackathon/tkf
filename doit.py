@@ -3,6 +3,7 @@
 
 from src.QcloudApi.qcloudapi import QcloudApi
 import os, random, json, urllib2
+from time import sleep
 import sys
 reload(sys)
 sys.setdefaultencoding('utf-8')
@@ -64,18 +65,36 @@ def calc(**args):
         s = emotion(item['text'])
         f.write('%s %s\n' % (s, item['title']))
         score += s['positive'] - 0.5 # 还可以进行调整
-        #todo frequency
+        sleep(0.01)
     f.close()
 
     return score
+def batch(**args):
+    res = fetch(**args)
+    f = open('samples/' + args['symbol'], 'a+')
+    source = args['source']
+    sort = args['sort']
+    for item in res['list']:
+        try:
+            s = emotion(item['text'])
+            f.write('%s.%s %d %f "%s"\n' % (source, sort, item['created_at'], s['positive'], item['title']))
+            print args['symbol'], source, sort, item['created_at'], item['title']
+        except e:
+            print 'exception', e, item['text']
+    f.close()
 #SH601668
 # test symbol, source[all|user] sort[time|alpha]
 ups = ['SH603036', 'SH600239', 'SH603990', 'SH600173', 'SH600909', 'SH601882', 'SH600466', 'SH603819', 'SH601116', 'SH603033']
 downs = ["SH603025", "SH603159", "SH603900", "SH603987", "SH603977", "SH603060", "SH603323", "SH600848", "SH603999", "SH603727"]
-def store(page=1, sym):
+def store(page=1, sym=''):
     print sym, 'user.time.score', calc(symbol=sym, count=10, page=page, source='user', sort='time')
     print sym, 'user.reply.score', calc(symbol=sym, count=10, page=1, source='user', sort='reply')
     print sym, 'all.time.score', calc(symbol=sym, count=10, page=1, source='all', sort='time')
     print sym, 'all.alpha.score', calc(symbol=sym, count=10, page=1, source='all', sort='alpha')
 
-
+for up in [ups[0], downs[0]]:
+    p = 2
+    batch(symbol=up, count=10, page=p, source='user', sort='time')
+    batch(symbol=up, count=10, page=p, source='user', sort='reply')
+    batch(symbol=up, count=10, page=p, source='all', sort='time')
+    batch(symbol=up, count=10, page=p, source='all', sort='alpha')
