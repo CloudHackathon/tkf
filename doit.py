@@ -56,15 +56,26 @@ def fetch(symbol='SH601985', page=1, count=20, source='user', sort='time'):
 
 #print emotion()
 # fetch 100 message and get the score
-def calc():
-    res = fetch(count=10, page=2, source='user', sort='time')
+def calc(**args):
+    res = fetch(**args)
     score = 0
+    f = open('samples/'+args['symbol'], 'a+')
     for item in res['list']:
         s = emotion(item['text'])
-        print s, item['title']
+        f.write('%s %s\n' % (s, item['title']))
         score += s['positive'] - 0.5 # 还可以进行调整
+        #todo frequency
+    f.close()
 
     return score
 #SH601668
 # test symbol, source[all|user] sort[time|alpha]
-print 'current score', calc()
+ups = ['SH603036', 'SH600239', 'SH603990', 'SH600173', 'SH600909', 'SH601882', 'SH600466', 'SH603819', 'SH601116', 'SH603033']
+downs = ["SH603025", "SH603159", "SH603900", "SH603987", "SH603977", "SH603060", "SH603323", "SH600848", "SH603999", "SH603727"]
+def store(page=1, sym):
+    print sym, 'user.time.score', calc(symbol=sym, count=10, page=page, source='user', sort='time')
+    print sym, 'user.reply.score', calc(symbol=sym, count=10, page=1, source='user', sort='reply')
+    print sym, 'all.time.score', calc(symbol=sym, count=10, page=1, source='all', sort='time')
+    print sym, 'all.alpha.score', calc(symbol=sym, count=10, page=1, source='all', sort='alpha')
+
+
