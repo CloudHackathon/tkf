@@ -92,8 +92,8 @@ def store(page=1, sym=''):
     print sym, 'all.time.score', calc(symbol=sym, count=10, page=1, source='all', sort='time')
     print sym, 'all.alpha.score', calc(symbol=sym, count=10, page=1, source='all', sort='alpha')
 
-for up in [ups[0], downs[0]]:
-    p = 2
+for up in ['SH603033']:
+    p = 1
     batch(symbol=up, count=10, page=p, source='user', sort='time')
     batch(symbol=up, count=10, page=p, source='user', sort='reply')
     batch(symbol=up, count=10, page=p, source='all', sort='time')
